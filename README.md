@@ -33,7 +33,7 @@ git clone https://github.com/SadeghKrmi/fivegsequenceanalyzer.git
 
 4️⃣ Install python3 libs and dependencies for django
 ```
-cd ~/fiveGSequenceAnalyzer/
+cd ~/fivegsequenceanalyzer/
 sudo apt-get -y install python3-pip
 sudo pip3 install virtualenv
 sudo virtualenv .env
@@ -43,13 +43,13 @@ sudo .env/bin/pip3 install -r  preconfig/requirements.txt
 
 5️⃣ Install requirement on python base
 ```
-cd ~/fiveGSequenceAnalyzer/
+cd ~/fivegsequenceanalyzer/
 sudo pip3 install -r preconfig/requirements.txt
 ```
 
 6️⃣ Load protocol settings into database
 ```
-cd ~/fiveGSequenceAnalyzer/
+cd ~/fivegsequenceanalyzer/
 sudo apt-get install -y mongo-tools
 mongorestore -d 'diagram' preconfig/db_dump/diagram/
 ``
