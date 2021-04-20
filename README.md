@@ -38,13 +38,13 @@ sudo apt-get -y install python3-pip
 sudo pip3 install virtualenv
 sudo virtualenv .env
 source .env/bin/activate
-sudo .env/bin/pip3 install -r  preconfig/requirements.txt
+sudo .env/bin/pip3 install -r  requirements.txt
 ```
 
 5️⃣ Install requirement on python base
 ```
 cd ~/5G-Trace-Analyzer/
-sudo pip3 install -r preconfig/requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 
 6️⃣ Load protocol settings into database
