@@ -28,7 +28,7 @@ sudo apt-get clean
 3️⃣ Change directory & Clone the project
 ```
 cd ~
-git https://github.com/SadeghKrmi/5G-Trace-Analyzer.git
+git clone https://github.com/SadeghKrmi/5G-Trace-Analyzer.git
 ```
 
 4️⃣ Install python3 libs and dependencies for django
