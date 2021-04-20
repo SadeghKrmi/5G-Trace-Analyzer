@@ -33,7 +33,7 @@ git clone https://github.com/SadeghKrmi/5G-Trace-Analyzer.git
 
 4️⃣ Install python3 libs and dependencies for django
 ```
-cd ~/fivegsequenceanalyzer/
+cd ~/5G-Trace-Analyzer/
 sudo apt-get -y install python3-pip
 sudo pip3 install virtualenv
 sudo virtualenv .env
@@ -43,13 +43,13 @@ sudo .env/bin/pip3 install -r  preconfig/requirements.txt
 
 5️⃣ Install requirement on python base
 ```
-cd ~/fivegsequenceanalyzer/
+cd ~/5G-Trace-Analyzer/
 sudo pip3 install -r preconfig/requirements.txt
 ```
 
 6️⃣ Load protocol settings into database
 ```
-cd ~/fivegsequenceanalyzer/
+cd ~/5G-Trace-Analyzer/
 sudo apt-get install -y mongo-tools
 mongorestore -d 'diagram' preconfig/db_dump/diagram/
 ``
