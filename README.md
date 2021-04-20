@@ -7,6 +7,7 @@ The initial trance files(.pcap) are originated from free5GC project.
 ## How to install?
 
 ### Vagrant Config
+Copy below config in a file named `Vagrantfile`
 ```
 Vagrant.configure("2") do |config|
   config.vm.define "fiveGTraceAnalyzer"
@@ -23,11 +24,13 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "shared", "/vagrant", disabled: false
 
 end
-
-
 ```
 
-
+:zero: Install a ubuntu machine using Vagrant
+```
+vagrant plugin install vagrant-reload
+vagrant up
+```
 
 ### Direct Installation (Linux Installation :: Ubuntu)
 :one: Install mongodb, wget and git
