@@ -53,3 +53,13 @@ cd ~/5G-Trace-Analyzer/
 sudo apt-get install -y mongo-tools
 mongorestore -d 'diagram' preconfig/db_dump/diagram/
 ``
+
+:seven: Run the django server
+```
+cd ~/5G-Trace-Analyzer/fiveGseqAnalyzer
+sudo ../.env/bin/python3 manage.py runserver 0.0.0.0:8080
+```
+
+### Credientials
+user: testuser
+pass: trace@123
