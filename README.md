@@ -64,6 +64,7 @@ Browse address yourmachineIP:8080 in your browser:
 
 ex: http://192.168.56.4:8080
 
-### Credientials
+### Login Credientials
 user: testuser
+
 pass: trace@123
