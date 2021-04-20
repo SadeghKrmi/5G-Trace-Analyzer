@@ -5,7 +5,7 @@ The 5G Sequence Analyzer is an open-source project to process and analyze 5G net
 The initial trance files(.pcap) are originated from free5GC project.
 
 ## How to install?
-### Direct Installation
+### Direct Installation (Linux Installation :: Ubuntu)
 :one: Install mongodb, wget and git
 ```
 sudo apt-get -y update
