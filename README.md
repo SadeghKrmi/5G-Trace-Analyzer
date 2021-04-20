@@ -60,6 +60,10 @@ cd ~/5G-Trace-Analyzer/fiveGseqAnalyzer
 sudo ../.env/bin/python3 manage.py runserver 0.0.0.0:8080
 ```
 
+connect to yourmachineIP:8080
+
+ex: http://192.168.56.4:8080
+
 ### Credientials
 user: testuser
 pass: trace@123
