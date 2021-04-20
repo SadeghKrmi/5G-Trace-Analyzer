@@ -6,4 +6,4 @@ The initial trance files(.pcap) are originated from free5GC project.
 
 ## How to install?
 ### Direct Installation
-"Install mongodb wget git"
+:one: Install mongodb wget git
