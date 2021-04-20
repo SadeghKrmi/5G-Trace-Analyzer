@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block stylesheet %}
+    {% load static %}
+      <style>
+        .responsive {
+          width: 70%;
+          height: auto;
+
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+  
+        main > .container {
+          padding: 15px 15px 0;
+        }
+        
+        .footer {
+          background-color: #f5f5f5;
+        }
+        
+        .footer > .container {
+          padding-right: 15px;
+          padding-left: 15px;
+        }
+        
+        code {
+          font-size: 100%;
+        }
+
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <div class="px-2 py-1 pt-md-4 pb-md-3 mx-auto text-center ">
+    <h3 class="display-5">5G Trace Analyzer</h3>
+    <h3 class="display-5"><code>Let's dive deeper into 5G!</code></h3>
+    <!-- <p class="lead">Quickly <code>analyze</code>, <code>investigate</code> 5G SA Network traces and <code>learn</code> 5G with real traces</p> -->
+    <p class="lead">Quickly <u>analyze</u>, <u>investigate</u> 5G SA Network traces and <u>learn</u> 5G with real traces</p>
+  </div>
+  
+  <img class="responsive" src="{% static 'images/trace_figure.png' %}"/>
+</div>
+
+<footer class="footer mt-auto py-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-2">
+        <small class="d-block mb-3 text-muted">&copy; 2020-2022</small>
+      </div>
+      <div class="col-sm-10">
+        <p>designed & developed by Sadegh Karimi, <a href="https://www.linkedin.com/company/datacula/">DataCula</a> Team!</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'docApp/documentation.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'docApp/move-to-top.css' %}">
+
+    <style>
+      .blog-sidebar {
+        overflow-x: hidden;
+        height: 100%;
+      }
+
+      .justification {
+        text-align: justify;
+        text-justify: inter-word;
+      }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+<a href="#" id="scroll" style="display: none;"><span></span></a>
+
+
+<div class="jumbotron py-0 my-0 p-md-4 text-white rounded bg-dark">
+    <div class="px-2">
+        <h4 class="display-5 font-italic text-center">5G trace analyzer documentation</h4>
+    </div>
+</div>
+
+
+
+<div class="container-fluid p-4 fill">
+    <main role="main">
+        <div class="row">
+            <div class="col-md-8 px-4 blog-main">
+              <div class="container p-4">
+              {% for catItem in categoriz %}
+                <h3 class="pt-4 px-2" id="{{catItem.name}}"><strong><i class="fa fa-arrow-right" aria-hidden="true"></i>   {{catItem.name}}</strong></h3>
+                {% for dataItems in data|filterInQuerySet:catItem.id %}
+                <div class="blog-post px-4">
+                  <hr>
+                  <h4 class="blog-post-title" id="{{catItem.name}}_{{ dataItems.id }}">{{ dataItems.title|title }}</h4>
+                  <p class="blog-post-meta">Category: {{ dataItems.category }}</p>
+                  <div class="justification">
+                    <p>{{ dataItems.body|safe }}</p>
+                  </div>
+                  
+                </div><!-- /.blog-post --> 
+                {% endfor %}
+              {% endfor %}
+              </div>
+            </div><!-- /.blog-main -->
+
+          <aside class="col-md-4 blog-sidebar fill">
+            <div class="p-4 mb-3 px-0 mx-0 bg-light rounded fill">
+              <h4>Categories</h4>
+              <hr>
+
+              <ul class="list-unstyled px-2 mb-0"> 
+              {% for catItem in categoriz %}
+                <li class="py-1 mainCategory"><a href="#{{ catItem.name }}"><i class="fa fa-bars ml-0 pr-2" aria-hidden="true"></i>{{ catItem.name }}</a>
+                  <ol class="list-unstyled">
+                    {% for dataItems in data|filterInQuerySet:catItem.id %}
+                    <li class="py-1 subCategory pl-4"><a href="#{{catItem.name}}_{{ dataItems.id }}">{{ dataItems.title|title }}</a></li>
+                    {% endfor %}
+                  </ol>
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
+          </aside><!-- /.blog-sidebar -->
+
+        </div><!-- /.row -->
+      </main><!-- /.container -->   
+</div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script src="{% static 'docApp/move-to-top.js' %}"></script>
+
+{% endblock %}

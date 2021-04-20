@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block stylesheet %}
+    {% load static %}
+    <style>
+      
+      .responsive {
+        width: auto;
+        height: auto;
+        max-width: 100px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      main > .container {
+        padding: 15px 15px 0;
+      }
+      
+      .footer {
+        background-color: #f5f5f5;
+      }
+      
+      .footer > .container {
+        padding-right: 15px;
+        padding-left: 15px;
+      }
+      
+      code {
+        font-size: 100%;
+      }
+
+      .indent {
+        margin-left: 2%;
+      }
+
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+    <img class="responsive mt-0" src="{% static 'images/support.png' %}"/>
+    <h1 class="mt-2">Any suggestion or support?</h1>
+    <p class="lead">Please try contact me using email, WhatsApp or LinkedIn:</p>
+    <div class="indent">
+      <P>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+        <code>sadegh.krmi@gmail.com</code></P>
+      <P>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        <code>+989352003387</code>
+      </P>
+      <p>
+     	 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+	 <code><a class="p-2 text-dark"href="https://www.linkedin.com/in/sadegh-karimi/">LinedIn</a></code></P>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer mt-auto py-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-2">
+        <small class="d-block mb-3 text-muted">&copy; 2020-2022</small>
+      </div>
+      <div class="col-sm-10">        <p>designed & developed by Sadegh Karimi, <a href="https://www.linkedin.com/company/datacula/">DataCula</a> Team!</p>      
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+{% endblock %}

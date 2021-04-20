@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <title>5G Seq Analyzer</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'stickyNote/dist/jquery.postitall.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'stickyNote/dist/jquery-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'reginstration/favicon.png' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'snackbar/toast.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'jQueryConfirm/jquery-confirm.min.css' %}">
+
+    
+    {% block stylesheet %}{% endblock %}
+  </head>
+  <body class="d-flex flex-column h-100">
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
+      <h5 class="my-0 mr-md-auto font-weight-normal"><strong><a style="text-decoration: none; color:black;" target="_blank"  href='https://github.com/SadeghKrmi/5G-Trace-Analyzer'>Github</a></strong></h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark"href="{% url 'home' %}">Home</a>
+        <a class="p-2 text-dark" href="{% url 'analyaerApp' %}">Analyzer</a>
+	<!-- <a class="p-2 text-dark" href="{% url 'docs' %}">Docs</a> -->
+        <a class="p-2 text-dark" href="{% url 'support' %}">Support</a>
+      </nav>
+      <a class="btn btn-sm btn-outline-warning" href="{% url 'logout' %}">logout</a>
+    </div>
+
+{% block content %}{% endblock %}
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="{% static 'stickyNote/dist/jquery-ui.js' %}"></script>
+<script src="{% static 'stickyNote/dist/jquery.postitall.js' %}"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="{% static 'snackbar/toast.min.js' %}"></script>
+<script src="{% static 'jQueryConfirm/jquery-confirm.min.js' %}"></script>
+
+<script>
+  // This is a function for snackbar: https://github.com/Script47/Toast
+  function SnackBar(Type, Title, Delay){
+      $.toast({
+        type: Type,
+        title: Title,
+        delay: Delay
+      });
+  };
+</script>
+{% block javascript %}{% endblock %}
+
+</body>
+</html>

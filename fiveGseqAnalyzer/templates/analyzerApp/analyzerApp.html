@@ -1,0 +1,1977 @@
+{% extends 'base.html' %}
+
+{% block stylesheet %}
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'sidebar/sidebar.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'docApp/move-to-top.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'jsonformatter/source/jsonFormatter.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/jquery.dataTables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/select.dataTables.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/buttons.dataTables.css' %}">
+  
+  <style>
+    .ClickableTraceTestName {
+      cursor: pointer;
+    }
+
+    .fa-trash {
+      color: #DA8178;
+    }
+
+    .svg-responsive {
+      display: block;
+      height: auto;
+      width: auto;
+      max-width: 100%;
+    }
+
+    hr.StyleCode {
+      border-top: 1px solid black;
+    }
+
+    #ngapdatatable {
+      font-size: 13px;
+    }
+
+    #pfcpdatatable {
+      font-size: 13px;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+<a href="#" id="scroll" style="display: none;"><span></span></a>
+<div class="wrapper d-flex align-items-stretch">
+  <nav id="sidebar" class="active">
+    <div class="custom-menu">
+      <button type="button" id="sidebarCollapse" class="btn btn-primary">
+        <i class="fa fa-bars"></i>
+        <span class="sr-only">Toggle Menu</span>
+      </button>
+    </div>
+    <div class="p-3 OnTop">
+        <div class="my-0 p-2 bg-white rounded shadow-sm">
+          <form id="uploadtraceFromid" mehtod="post" class="p-0">
+            <div class="custom-file py-2">
+              <small>
+                <input type="file" class="custom-file-input" id="fileupload">
+                <label class="custom-file-label" for="fileupload">Choose file</label>
+              </small>
+            </div>
+            <div class="row">
+              <div class="pt-2 col-sm-6">
+              </div>
+              <div class="pt-2 col-sm-6">
+                <button id="analyzeButton" class="btn btn-sm btn-outline-dark btn-block" type="button">
+                  <span id="analyzeSpinner" class="" role="Analyze" aria-hidden="true"></span>
+                  Analyze
+                </button>
+                <!-- <button type="button" id="analyzeButton" class="btn btn-sm btn-outline-dark btn-block"><strong>Analyze</strong></button> -->
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
+
+    <div class="px-3 pb-3 pt-1 OnTop">
+        <div class="my-0 p-2 bg-white rounded shadow-sm">
+          <!-- Example split danger button -->
+          <div class="btn-group btn-block dropright">
+            <button type="button" class="btn btn-outline-dark" disabled><small>Protocol Configuration</small> </button>
+            <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="" data-toggle="modal" data-target="#HTTP_Protocol">http protocol</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="" data-toggle="modal" data-target="#NGAP_Protocol">ngap protocol</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="" data-toggle="modal" data-target="#PFCP_Protocol">pfcp protocol</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="" data-toggle="modal" data-target="#Wireshark_Options">wireshark options</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="" data-toggle="modal" data-target="#Diagram_Options">diagram options</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="" id="Analyzer_ScenarioID" data-toggle="modal" data-target="#Analyzer_Scenario">Analyzer Scenarios</a>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="px-3 pb-3 pt-1 OnTop">
+      <div class="my-0 p-2 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0 text-left">Traces
+          <div id="loadingTraceId" class="spinner-grow spinner-grow-sm text-warning invisible" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <span id="records" class="badge badge-pill badge-dark float-right">{{ records }}</span></h6>
+          <div class="ajax_traces_load">
+            {% for element in  page_obj %}
+            <div class="row px-3 float-right">
+              <i id="del_{{ element.TestName }}" class="DeleteTrace fa fa-trash p-1 fload-right" aria-hidden="true"></i>
+              <a href="/media/{{ element.TestName }}" download><i id="download_{{ element.TestName }}" class="DownloadTrace fa fa-download p-1 fload-right" aria-hidden="true"></i></a>
+            </div>
+            <div>
+              <p class="pb-1 pt-2 pl-2 pr-4 mb-0 small border-bottom border-gray" style="word-wrap: break-word">
+                {{ element.uploaded_at|date:'Y-m-d H:i:s' }}
+                <strong class="d-block">
+                  <a id={{ element.TestName }} class="traceClicked ClickableTraceTestName">{{ element.realFileName }}</a>
+                </strong>
+              </p>
+            </div>
+
+            {% endfor %}
+          </div>
+          <nav aria-label="traces navigation" class="pt-3">
+              <ul class="ajax_pagination_ul pagination pagination-sm justify-content-center">
+                <!-- <div class="ajax_pagination_load pagination pagination-sm justify-content-center"> -->
+              {% for i in page_ranges %}
+                <li id="{{ i }}" class="ajax_pagination_li page-item"><a class="page-link ClickableTraceTestName">{{ i }}</a></li>
+              {% endfor %}
+                <!-- </div> -->
+              </ul>
+          </nav>
+      </div>
+    </div>
+  </nav>
+
+    <!-- Page Content  -->
+  <div id="content" class="p-1 p-md-3">
+
+    <!-- Start of AnalyzerScenario Modal -->
+    <div id="Analyzer_Scenario" tabindex="-1" role="dialog" aria-labelledby="AnalyzerScenario_ModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+            <div class="tabs active">
+                <h6 class="font-weight-bold">Analyzer Scenarios</h6>
+            </div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="line"></div>
+        <div class="modal-body p-0">
+          <fieldset class="show">
+            <div class="bg-light border-bottom">
+              <div class="card card-header">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="input-group input-group-sm">
+                      <input id="AnalyzerScenarioName" type="text" class="form-control" placeholder="Scenario Name" aria-label="Scenario">
+                      <input id="AnalyzerScenarioDescription" type="text" class="form-control" placeholder="Description" aria-label="Scenario">
+                      <div class="input-group-append">
+                        <button id="AnalyzerScenarioSave" class="btn btn-outline-secondary" type="button">Save</button>
+                      </div>
+                    </div>
+                    <p class="text-center"><small>Configure your desired settings in each protocol, give it a name and save it!</small></p>
+                  </div>
+                </div>
+              </div>
+              <div id="savedAnalyzerScenarios" class="card card-body">
+                
+
+              </div>
+            </div>
+        </fieldset>
+        <!-- End of FieldSet -->
+        </div>
+        <div class="line"></div>
+          <div class="modal-footer">
+          </div>
+        </div>
+        </div>
+    </div>
+    <!-- End of AnalyzerScenario Modal -->
+
+
+    <!-- Start of HTTP Modal -->
+    <div id="HTTP_Protocol" tabindex="-1" role="dialog" aria-labelledby="HTTP_ProtocolModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+              <div class="tabs active">
+                  <h6 class="font-weight-bold">HTTP</h6>
+              </div>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="line"></div>
+          <div class="modal-body p-0">
+            <fieldset class="show">
+              <div class="bg-light border-bottom">
+                  <!-- {# <h6 class="text-center mb-4 mt-0 pt-4">HTTP Configuration</h6> #} -->
+                  <form id="httpFormid" class="form">
+                    {% csrf_token %}
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#httpConfig01">Header Config</a>
+                    <div class="collapse" id="httpConfig01">
+                      <div class="card card-body">
+                        <div class="container">
+                          {% for field in forms.http2Form.Header %}
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_http_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control HTTPClass" aria-describedby="id_http_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#httpConfig02">Payload Config</a>
+                    <div class="collapse" id="httpConfig02">
+                      <div class="card card-body">
+                        <div class="container">
+                          {% for field in forms.http2Form.Payload %}
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_http_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control HTTPClass" aria-describedby="id_http_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+            </fieldset>
+          <!-- End of FieldSet -->
+          </div>
+          <div class="line"></div>
+            <div class="modal-footer">
+              <div class="col-6">
+                <div class="col-xs-12 col-sm-12 progress-container">
+                  <div class="progress">
+                    <div id="HTTPProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                      <span id="current-progress"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="httpFormReset" value="httpFormReset"><strong>reset</strong></button>
+              <button type="button" class="btn btn-primary btn-sm" id="httpFormSubmit" value="httpFormSubmit"><strong>submit</strong></button>
+
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- End of HTTP Modal -->
+
+
+    <!-- Start of NGAP Modal -->
+    <div id="NGAP_Protocol" tabindex="-1" role="dialog" aria-labelledby="NGAP_ProtocolModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+              <div class="tabs active">
+                  <h6 class="font-weight-bold">NGAP</h6>
+              </div>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="line"></div>
+          <div class="modal-body p-0">
+            <fieldset class="show">
+              <div class="bg-light border-bottom">
+                  <!-- {# <h6 class="text-center mb-4 mt-0 pt-4">NGAP Configuration</h6> #} -->
+                  <form id="ngapFormid" class="form">
+                    {% csrf_token %}
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#ngapConfig01">General Config</a>
+                    <div class="collapse" id="ngapConfig01">
+                      <div class="card card-body">
+                        <div class="container" id="ngapContainer">
+                          <table id="ngapdatatable" class="display compact" style="width:100%">
+
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+
+              </div>
+          </fieldset>
+          <!-- End of FieldSet -->
+          </div>
+          <div class="line"></div>
+            <div class="modal-footer">
+              <div class="col-6">
+                <div class="col-xs-12 col-sm-12 progress-container">
+                  <div class="progress">
+                    <div id="NGAPProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                      <span id="current-progress"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="ngapFormReset" value="ngapFormReset"><strong>reset</strong></button>
+              <!-- <button type="button" class="btn btn-primary btn-sm" id="ngapFormSubmit" value="ngapFormSubmit"><strong>submit</strong></button> -->
+
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- End of NGAP Modal -->
+    
+    
+    <!-- Start of PFCP Modal -->
+    <div id="PFCP_Protocol" tabindex="-1" role="dialog" aria-labelledby="PFCP_ProtocolModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+              <div class="tabs active">
+                  <h6 class="font-weight-bold">PFCP</h6>
+              </div>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="line"></div>
+          <div class="modal-body p-0">
+            <fieldset class="show">
+              <div class="bg-light border-bottom">
+                  <!-- {# <h6 class="text-center mb-4 mt-0 pt-4">PFCP Configuration</h6> #} -->
+                  <form id="pfcpFormid" class="form">
+                    {% csrf_token %}
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#pfcpConfig01">General Config</a>
+                    <div class="collapse" id="pfcpConfig01">
+                      <div class="card card-body">
+                        <div class="container">
+                          <table id="pfcpdatatable" class="display compact" style="width:100%">
+
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+              </div>
+          </fieldset>
+          <!-- End of FieldSet -->
+          </div>
+          <div class="line"></div>
+            <div class="modal-footer">
+              <div class="col-6">
+                <div class="col-xs-12 col-sm-12 progress-container">
+                  <div class="progress">
+                    <div id="PFCPProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                      <span id="current-progress"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="pfcpFormReset" value="pfcpFormReset"><strong>reset</strong></button>
+              <!-- <button type="button" class="btn btn-primary btn-sm" id="pfcpFormSubmit" value="pfcpFormSubmit"><strong>submit</strong></button> -->
+
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- End of PFCP Modal -->
+
+
+
+    <!-- Start of Diagram Modal -->
+    <div id="Diagram_Options" tabindex="-1" role="dialog" aria-labelledby="Diagram_OptionsModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+              <div class="tabs active">
+                  <h6 class="font-weight-bold">Diagram</h6>
+              </div>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="line"></div>
+          <div class="modal-body p-0">
+            <fieldset class="show">
+              <div class="bg-light border-bottom">
+                  <!-- {# <h6 class="text-center mb-4 mt-0 pt-4">Diagram Configuration</h6> #} -->
+                  <form id="diagramFormid" class="form">
+                    {% csrf_token %}
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#diagramConfig01">Graph Config</a>
+                    <div class="collapse" id="diagramConfig01">
+                      <div class="card card-body">
+                        <div class="container" id="diagramGraphId">
+                          <div class="row pb-2 pt-0">
+                            <div class="col-md-10"></div>
+                            <div class="col-md-1 pl-2 align-center"><i id="removediagramGraphOption" class="fa fa-minus-circle" aria-hidden="true"></i></div>
+                            <div class="col-md-1 pr-2 align-center"><i id="adddiagramGraphOption" class="fa fa-plus-circle" aria-hidden="true"></i></div>
+                          </div>
+                          {% for field in forms.diagramForm.Graph %}
+                          <div class="row" id="{{ field.field.widget.attrs.id }}">
+                            <div class="col-md-12 {{ field.field.widget.attrs.class }}">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_diagram_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text"  class="form-control DiagramClass" aria-describedby="id_diagram_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#diagramConfig02">Node Alias Config</a>
+                    <div class="collapse" id="diagramConfig02">
+                      <div class="card card-body">
+                        <div class="container" id="diagramNodeAliasId">
+                          <div class="row pb-2 pt-0">
+                            <div class="col-md-10"></div>
+                            <div class="col-md-1 pl-2 align-center"><i id="removediagramNodeAliasOption" class="fa fa-minus-circle" aria-hidden="true"></i></div>
+                            <div class="col-md-1 pr-2 align-center"><i id="adddiagramNodeAliasOption" class="fa fa-plus-circle" aria-hidden="true"></i></div>
+                          </div>
+                          {% for field in forms.diagramForm.NodeAlias %}
+                          <div class="row" id="{{ field.field.widget.attrs.id }}">
+                            <div class="col-md-12 {{ field.field.widget.attrs.class }}">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_diagram_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control DiagramClass" aria-describedby="id_diagram_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <div class="invisible">
+                      {% for field in forms.diagramForm.Hidden %}
+                      {{field}}
+                      {% endfor %}
+                    </div>
+                  </form>
+              </div>
+
+          </fieldset>
+          <!-- End of FieldSet -->
+          </div>
+          <div class="line"></div>
+            <div class="modal-footer">
+              <div class="col-6">
+                <div class="col-xs-12 col-sm-12 progress-container">
+                  <div class="progress">
+                    <div id="DiagramProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                      <span id="current-progress"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="diagramFormReset" value="diagramFormReset"><strong>reset</strong></button>
+              <button type="button" class="btn btn-primary btn-sm" id="diagramFormSubmit" value="diagramFormSubmit"><strong>submit</strong></button>
+
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- End of Diagram Modal -->
+
+
+
+    <!-- Start of Wireshark Modal -->
+    <div id="Wireshark_Options" tabindex="-1" role="dialog" aria-labelledby="Wireshark_OptionsModalLabel" aria-hidden="true" class="modal fade text-left">
+      <div role="document" class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+              <div class="tabs active">
+                  <h6 class="font-weight-bold">Wireshark</h6>
+              </div>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="line"></div>
+          <div class="modal-body p-0">
+            <fieldset class="show">
+              <div class="bg-light border-bottom">
+                  <!-- {# <h6 class="text-center mb-4 mt-0 pt-4">Wireshark Configuration</h6> #} -->
+                  <form id="wiresharkFormid" class="form">
+                    {% csrf_token %}
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#wiresharkConfig01">Protocol Config</a>
+                    <div class="collapse" id="wiresharkConfig01">
+                      <div class="card card-body">
+                        <div class="container" id="wiresharkProtocolsId">
+                          <div class="row pb-2 pt-0">
+                            <div class="col-md-10"></div>
+                            <div class="col-md-1 pl-2 align-center"><i id="removewiresharkProtocols" class="fa fa-minus-circle" aria-hidden="true"></i></div>
+                            <div class="col-md-1 pr-2 align-center"><i id="addwiresharkProtocols" class="fa fa-plus-circle" aria-hidden="true"></i></div>
+                          </div>
+                          {% for field in forms.wiresharkForm.Protocols %}
+                          <div class="row" id="{{ field.field.widget.attrs.id }}">
+                            <div class="col-md-12 {{ field.field.widget.attrs.class }}">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_wireshark_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#wiresharkConfig02">Decoder Config</a>
+                    <div class="collapse" id="wiresharkConfig02">
+                      <div class="card card-body">
+                        <div class="container" id="wiresharkDecodersId">
+                          <div class="row pb-2 pt-0">
+                            <div class="col-md-10"></div>
+                            <div class="col-md-1 pl-2 align-center"><i id="removewiresharkDecoders" class="fa fa-minus-circle" aria-hidden="true"></i></div>
+                            <div class="col-md-1 pr-2 align-center"><i id="addwiresharkDecoders" class="fa fa-plus-circle" aria-hidden="true"></i></div>
+                          </div>
+                          {% for field in forms.wiresharkForm.Decoders %}
+                          <div class="row" id="{{ field.field.widget.attrs.id }}">
+                            <div class="col-md-12 {{ field.field.widget.attrs.class }}">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_wireshark_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <a href="#" class="list-group-item py-1 d-flex justify-content-between align-items-center clickable" data-toggle="collapse" data-target="#wiresharkConfig03">Filter Config</a>
+                    <div class="collapse" id="wiresharkConfig03">
+                      <div class="card card-body">
+                        <div class="container" id="wiresharkFiltersId">
+                          <div class="row pb-2 pt-0">
+                            <div class="col-md-10"></div>
+                            <div class="col-md-1 pl-2 align-center"><i id="removewiresharkFilters" class="fa fa-minus-circle" aria-hidden="true"></i></div>
+                            <div class="col-md-1 pr-2 align-center"><i id="addwiresharkFilters" class="fa fa-plus-circle" aria-hidden="true"></i></div>
+                          </div>
+                          {% for field in forms.wiresharkForm.Filters %}
+                          <div class="row" id="{{ field.field.widget.attrs.id }}">
+                            <div class="col-md-12 {{ field.field.widget.attrs.class }}">
+                              <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="{{ field.help_text }}" id="id_wireshark_{{ field.name }}">{{ field.label }}</span>
+                                </div>
+                                <input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" required>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <!--  -->
+                    <div class="invisible">
+                      {% for field in forms.wiresharkForm.Hidden %}
+                      {{field}}
+                      {% endfor %}
+                    </div>
+                  </form>
+              </div>
+
+          </fieldset>
+          <!-- End of FieldSet -->
+          </div>
+          <div class="line"></div>
+            <div class="modal-footer">
+              <div class="col-6">
+                <div class="col-xs-12 col-sm-12 progress-container">
+                  <div class="progress">
+                    <div id="WiresharkProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                      <span id="current-progress"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="wiresharkFormReset" value="wiresharkFormReset"><strong>reset</strong></button>
+              <button type="button" class="btn btn-primary btn-sm" id="wiresharkFormSubmit" value="wiresharkFormSubmit"><strong>submit</strong></button>
+
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- End of Wireshark Modal -->
+
+
+    <div id="traceDiv" class="container svg-responsive">
+      <div class="container p-4">
+        <h3>5G Sequence Diagram / 5G Traffic Flow Analyzer</h3>
+        <h5>Please choose your trace from left panel and let our anaylzer creates your Traffic Flow.</h5>
+        <hr>
+        <p>This tools is provided as an open-source priject to perform analysis of 5G traces into readable, consize and very useful traffic flows. 
+          using traffic flow, gives the possibility of better understanding system and the way it works. 
+          Traffic flow is used to analyze root cause of incedents more quicker which will leads to higher service availability and quality.  
+        </p>
+      </div>
+    </div>  
+  </div>
+
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+  <script src="{% static 'docApp/move-to-top.js' %}"></script>
+  <script src="{% static 'sidebar/sidebar.js' %}" charset="utf-8"></script>
+  <script src="{% static 'jsonformatter/source/jsonFormatter.min.js' %}" charset="utf-8"></script>
+  <script src="{% static 'datatables/js/jquery.dataTables.min.js' %}" charset="utf-8"></script>
+  <script src="{% static 'datatables/js/dataTables.buttons.js' %}" charset="utf-8"></script>
+  <script src="{% static 'datatables/js/dataTables.responsive.js' %}" charset="utf-8"></script>
+  <script src="{% static 'datatables/js/dataTables.altEditor.free.js' %}" charset="utf-8"></script>
+  <script src="{% static 'datatables/js/dataTables.select.js' %}" charset="utf-8"></script>
+
+
+  
+  <!-- Start of Note options -->
+  <script>
+
+    function addNote(dataInput, attachToelementId){
+     //Changable css clases for new notes
+      $.PostItAll.new({
+        id              : attachToelementId,
+        // posX            : '10px',                   //x coordinate (from left)
+        // posY            : '10px',                   //y coordinate (from top)
+        right           : '',                       //x coordinate (from right). This property invalidate posX
+        height          : 320,                      //Note total height
+        width           : 500,                      //Note total width
+        minHeight       : 200,                      //Note resizable min-width
+        minWidth        : 320,                      //Note resizable min-height
+        position        : 'relative',               //relative, 
+
+        //content : 'Such an amazing sticky note <strong>holy shit</strong>',
+        content : dataInput,
+        style : {
+          tresd           : false,                 //General style in 3d format
+          backgroundcolor : '#F7F9F9',            //Background color in new postits when randomColor = false
+          textcolor       : '#17202A',            //Text color
+          textshadow      : false,                 //Shadow in the text
+          fontfamily      : 'Open Sans',            //Default font
+          fontsize        : 'small',              //Default font size
+          //arrow           : 'top',               //Default arrow : none, top, right, bottom, left
+        },
+
+        cssclases : {
+          //note            : 'note', //Default note style
+          note            : 'hexoutNote', //Default note style
+          
+
+        }, 
+
+        features: {
+          randomColor     : false,         //Random color in new postits
+          toolbar         : true,         //Show or hide toolbar
+          askOnDelete     : false,         //Confirmation before note remove
+          editable        : false,         //Set contenteditable and enable changing note content
+          changeoptions   : false,         //Set options feature on or off
+          hidden          : false,         //The note can be hidden
+          addNew          : false,         //Create a new postit
+          showInfo        : false,         //Show info icon (info tab)
+          showMeta        : false,         //Show info icon (meta tab)
+          exportNote      : false,         //Note can be exported
+          fixed           : false,         //Allow to fix the note in page
+          blocked         : false,         //Postit can not be modified
+        },
+
+        flags : {
+          blocked         : false,                //If true, the note cannot be edited
+        },
+
+        attachedTo : {
+          element         : '#' + attachToelementId,                   //Where to attach (string or object / '#idObject' or $('#idObject'))
+          position        : 'top',                //Position relative to elemente : top,right,bottom,left or combinations (top left, right bottom, ...)
+          fixed           : true,                 //Fix note to element when resize screen
+          arrow           : true,                 //Show an arrow in the inverse position
+          
+        },
+      
+        onCreated: function(id, options, obj) {
+          // enable jsonfomratter
+          $(id).find('.jsonFormatter').jsonFormatter({});
+
+          var Comllapsibles = $(id).find('.jsonFormatter-collapsible')
+          var expandeds = $(id).find('.jsonFormatter-expanded')
+
+          // collapse all elements in notes except first one
+          for(var i = 1; i < expandeds.length; i++){
+            var $t = $(expandeds[i])
+            $t.addClass('jsonFormatter-collapsed').removeClass('jsonFormatter-expanded')
+          }
+
+          // hide all elements in notes exept first one
+          for(var i = 1; i < Comllapsibles.length; i++){
+            var $t = $(Comllapsibles[i])
+            $t.attr('style', 'display: none;')
+          }
+
+          // Set height to be same as json data
+
+          setTimeout(function() {
+            heightOfContent = $('#pia_editable_' + attachToelementId).height()
+            $('#PIApostit_' + attachToelementId).css('height', (heightOfContent + 55) + 'px' )
+          }, 500);
+
+
+          // add Header to note : Frame ID
+          $('<h6 class="text-center">Frame '+ attachToelementId +'</h6>').appendTo('#pia_toolbar_' + attachToelementId);
+        
+          var options = $(id).postitall('options');
+          //console.log(options)
+        },
+      });
+    }
+
+
+
+  </script>
+  <!-- End of Note options -->
+
+
+  <!-- start of Align height of json and note -->
+  <script>
+
+    $(document).on("click",'.jsonFormatter-expander' , function(){
+      id = $(this).closest('section')[0].id
+      heightOfContent = $('#pia_editable_' + id).height()
+      $('#PIApostit_' + id).css('height', (heightOfContent + 55) + 'px' )
+
+    })
+  </script>
+  <!-- End of Align height of json and note -->
+
+
+  <!-- detect clicked link in svg image -->
+  <!-- we have to remove attr href in svg links -->
+  <script>
+    $(document).on("click",'.traceClicked' , function(){
+      setTimeout(function() {
+        $("object a").map(function(){
+          id = $(this).attr("title")
+          $(this).attr("href", '#');
+          $(this).attr("id", id);
+          //return $(this).attr("href", '#');
+        });
+        $("object a").map(function(){return $(this).attr("onclick", 'return false;');});
+      }, 1000);
+    })
+
+
+
+    $(document).on("click",'object a' , function(){
+      idValue = $(this).attr('id');
+      testName = $('.objectforSVG').attr('id')
+      //addNote(titleValue);
+      $.ajax({
+        url: "{% url 'loadSeqLinkText' %}",
+        type: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {'id': idValue, 'testName': testName, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType: 'json',
+        success: function (data) {
+          tempData = JSON.stringify(data.data, null, 4);
+          dataInNote =
+          `
+          <section class="sectionContent" id="`+ idValue +`">
+            <div class="jsonFormatter">`+ tempData +`</div>
+          </section>
+          `
+          addNote(dataInNote, idValue);
+        },
+
+      })
+    })
+
+  </script>
+
+
+  <!-- Start of NGAP Options for datatable -->
+  <script>
+    // add altEditor as editor for datatable
+    $(document).ready(function() {
+      
+      var columnDefs = [
+        {
+          data: "id",
+          title: "IE",
+          type: "readonlytext",
+          width: "5%",
+        },
+        {
+          data: "name",
+          title: "name",
+          type: "readonly",
+          width: "40%",
+        },
+        {
+          data: "required",
+          title: "required",
+          width: "10%",
+        },
+        {
+          data: "show",
+          title: "show",
+          width: "10%",
+        },
+        {
+          data: "filter",
+          title: "filter",
+          width: "10%",
+        },
+        {
+          data: "fields",
+          title: "fields",
+          width: "25%",
+        },
+      ];
+      
+      var table = $('#ngapdatatable').DataTable( {
+          lengthChange: true,
+          processing: true,
+          serverSide: true,
+          autoWidth: false,
+          ajax: {
+            url: "{% url 'ngapUpdater' %}",
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+          },
+          pageLength: 8,
+          columns: columnDefs,
+          dom: 'Bfrtip',        // Needs button container
+          bSort: false,
+          select: 'single',
+          responsive: true,
+          altEditor: true,     // Enable altEditor
+          buttons: [
+            {
+              extend: 'selected', // Bind to Selected row
+              text: 'Edit',
+              name: 'edit'        // do not change name
+            },
+          ],
+          onEditRow: function(datatable, rowdata, success, error) {
+            $.ajax({
+                // a tipycal url would be /{id} with type='POST'
+                url: "{% url 'ngapEditor' %}",
+                type: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {
+                  csrfmiddlewaretoken: '{{ csrf_token }}',
+                  id: rowdata['id'],
+                  name: rowdata['name'],
+                  required: rowdata['required'],
+                  show: rowdata['show'],
+                  filter: rowdata['filter'],
+                  fields: rowdata['fields'],
+    
+                },
+                success: success,
+                error: error
+            });
+          },
+      });
+
+
+      $("#ngapFormReset").click(function () {
+
+        $.ajax({
+          url: "{% url 'ngapReset' %}",
+          type: 'POST',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          data: {'PressedButton': "Reset", csrfmiddlewaretoken: '{{ csrf_token }}'},
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#NGAPProgressBar");
+            table.ajax.reload();
+            CompRealInpConfig('input[id="NGAP"]'); // select inputs with tag id=PFCP
+            $("#ngapFormid #NGAP").css('color', 'black');
+            $("svg #NGAP").css({'opacity': "1"} );
+            SnackBar('info', 'NGAP Config is updating', 3000);
+          }
+          //  Todo: error for ajax
+        });        
+
+      
+      });
+
+    });
+
+  </script>
+<!-- End of NGAP Options for datatable -->
+
+
+  <!-- Start of PFCP Options for datatable -->
+  <script>
+    // add altEditor as editor for datatable
+    $(document).ready(function() {
+    
+      var columnDefs = [
+        {
+          data: "id",
+          title: "IE",
+          type: "readonlytext",
+          width: "5%",
+        },
+        {
+          data: "name",
+          title: "msg",
+          type: "readonly",
+          width: "35%",
+        },
+        {
+          data: "required",
+          title: "required",
+          width: "10%",
+        },
+        {
+          data: "show",
+          title: "show",
+          width: "10%",
+        },
+        {
+          data: "filter",
+          title: "filter",
+          width: "10%",
+        },
+        {
+          data: "fields",
+          title: "fields",
+          width: "30%",
+        },
+      ];
+      
+      
+      var table = $('#pfcpdatatable').DataTable( {
+          lengthChange: true,
+          processing: true,
+          serverSide: true,
+          autoWidth: false,
+          ajax: {
+            url: "{% url 'pfcpUpdater' %}",
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+          },
+          pageLength: 8,
+          columns: columnDefs,
+          dom: 'Bfrtip',        // Needs button container
+          bSort: false,
+          select: 'single',
+          responsive: true,
+          altEditor: true,     // Enable altEditor
+          buttons: [
+            {
+              extend: 'selected', // Bind to Selected row
+              text: 'Edit',
+              name: 'edit'        // do not change name
+            },
+          ],
+          onEditRow: function(datatable, rowdata, success, error) {
+            $.ajax({
+                // a tipycal url would be /{id} with type='POST'
+                url: "{% url 'pfcpEditor' %}",
+                type: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {
+                  csrfmiddlewaretoken: '{{ csrf_token }}',
+                  id: rowdata['id'],
+                  name: rowdata['name'],
+                  required: rowdata['required'],
+                  show: rowdata['show'],
+                  filter: rowdata['filter'],
+                  fields: rowdata['fields'],
+    
+                },
+                success: success,
+                error: error
+            });
+          },
+      });
+
+
+      $("#pfcpFormReset").click(function () {
+
+        $.ajax({
+          url: "{% url 'pfcpReset' %}",
+          type: 'POST',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          data: {'PressedButton': "Reset", csrfmiddlewaretoken: '{{ csrf_token }}'},
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#PFCPProgressBar");
+            table.ajax.reload();
+            CompRealInpConfig('input[id="PFCP"]'); // select inputs with tag id=PFCP
+            $("#pfcpFormid #PFCP").css('color', 'black');
+            $("svg #PFCP").css({'opacity': "1"} );
+            SnackBar('info', 'PFCP Config is updating', 3000);
+          }
+          //  Todo: error for ajax
+        });        
+
+      
+      });
+
+    });
+
+  </script>
+<!-- End of PFCP Options for datatable -->
+
+
+<!-- Start of HTTP2 options config jQuery -->
+<script>
+  $(function (){
+    $("#httpFormSubmit").click(function () {
+      var serializedData = $("#httpFormid").serialize();
+      $.ajax({
+        url: "{% url 'http2Updater' %}",
+        type: 'POST',
+        data: serializedData + "&PressedButton=" + "Submit",
+        dataType: 'json',
+        success: function (data) {
+          ProgressBar("#HTTPProgressBar");
+          CompRealInpConfig('input.HTTPClass'); // select inputs with tag id=HTTP
+          // alert("Shoooot")
+          $("#httpFormid #HTTP").css('color', 'black');
+          $("svg #HTTP").css({'opacity': "1"} );
+          SnackBar('info', 'http2 Config is updating', 3000);
+        },
+        error: function(data){
+          SnackBar('error', 'Something went wrong!', 3000);
+
+        }
+        //  Todo: error for ajax
+      });
+    });
+    $("#httpFormReset").click(function () {
+      var serializedData = $("#httpFormid").serialize();
+      $.ajax({
+        url: "{% url 'http2Updater' %}",
+        type: 'POST',
+        data: serializedData + "&PressedButton=" + "Reset",
+        dataType: 'json',
+        success: function (data) {
+          ProgressBar("#HTTPProgressBar");
+          // Reset value of inputs to initial value recevied from data
+          $.map(data, function(value, key) {
+            $('input[name='+key+']').val(value);
+          });
+
+          CompRealInpConfig('input.HTTPClass'); // select inputs with tag id=HTTP
+          $("#wiresharkFormid #HTTP").css('color', 'black');
+          $("svg #HTTP").css({'opacity': "1"} );
+          SnackBar('info', 'http2 Config is updating', 3000);
+        }
+        //  Todo: error for ajax
+      });
+    });
+  });
+
+</script>
+<!-- End of HTTP2 options config jQuery -->
+
+
+  <!-- Start of diagram options config jQuery -->
+  <script>
+    diagram_graph_optionCount = Number($("[name=diagram_graph_optionCount]").val());
+    diagram_graph_optionCountDefault = Number($("[name=diagram_graph_optionCountDefault]").val());
+
+    $("#adddiagramGraphOption").click(function() {
+      diagram_graph_optionCount ++;
+      //serviceName_Span = $('.nssf_serviceList_serviceName_span').text()
+      //suppFeat_Span = $('.nssf_serviceList_suppFeat_span').text()
+      element = 
+      `
+      <div class="row" id="diagram_graphOptionElement-`+ diagram_graph_optionCount +`">
+        <div class="col-md-12 ">
+          <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="" id="id_diagram_diagram_graph_options-`+ diagram_graph_optionCount +`">Option</span>
+          </div>
+          <input type="text" class="form-control DiagramClass" aria-describedby="id_diagram_diagram_graph_options-`+ diagram_graph_optionCount +`" name="diagram_graph_options-`+ diagram_graph_optionCount +`" value="graph" required="">
+          </div>
+        </div>
+      </div>
+      `
+  
+      $("#diagramGraphId").append(element);
+      $("[name=diagram_graph_optionCount]").val(diagram_graph_optionCount);  
+    })
+  
+    $("#removediagramGraphOption").click(function() {
+      
+      
+      if ( diagram_graph_optionCount < 1 ){
+        diagram_graph_optionCount = 1
+      } else {
+        $( "div #diagram_graphOptionElement-"+diagram_graph_optionCount ).remove();
+      }
+      diagram_graph_optionCount --;
+      $("[name=diagram_graph_optionCount]").val(diagram_graph_optionCount);
+    })  
+  
+
+
+
+    diagram_nodealias_optionCount = Number($("[name=diagram_nodealias_optionCount]").val());
+    diagram_nodealias_optionCountDefault = Number($("[name=diagram_nodealias_optionCountDefault]").val());
+    $("#adddiagramNodeAliasOption").click(function() {
+      diagram_nodealias_optionCount ++;
+      //serviceName_Span = $('.nssf_serviceList_serviceName_span').text()
+      //suppFeat_Span = $('.nssf_serviceList_suppFeat_span').text()
+      element = 
+      `
+      <div class="row" id="diagram_nodealiasOptionElement-`+ diagram_nodealias_optionCount +`">
+        <div class="col-md-12 ">
+          <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="" id="id_diagram_diagram_nodealias_options-`+ diagram_nodealias_optionCount +`">Option</span>
+          </div>
+          <input type="text" class="form-control DiagramClass" aria-describedby="id_diagram_diagram_nodealias_options-`+ diagram_nodealias_optionCount +`" name="diagram_nodealias_options-`+ diagram_nodealias_optionCount +`" value="nodealias" required="">
+          </div>
+        </div>
+       </div>
+      `
+  
+      $("#diagramNodeAliasId").append(element);
+      $("[name=diagram_nodealias_optionCount]").val(diagram_nodealias_optionCount);  
+    })
+  
+    $("#removediagramNodeAliasOption").click(function() {
+      
+      
+      if ( diagram_nodealias_optionCount < 1 ){
+        diagram_nodealias_optionCount = 1
+      } else{
+        $( "div #diagram_nodealiasOptionElement-"+diagram_nodealias_optionCount ).remove();
+      }
+      diagram_nodealias_optionCount --;
+      $("[name=diagram_nodealias_optionCount]").val(diagram_nodealias_optionCount);
+    })  
+  
+
+
+
+    $(function (){
+      $("#diagramFormSubmit").click(function () {
+        var serializedData = $("#diagramFormid").serialize();
+        $.ajax({
+          url: "{% url 'diagramUpdater' %}",
+          type: 'POST',
+          data: serializedData + "&PressedButton=" + "Submit",
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#DiagramProgressBar");
+            CompRealInpConfig('input.DiagramClass'); // select inputs with tag id=Diagram
+            // alert("Shoooot")
+            $("#diagramFormid #Diagram").css('color', 'black');
+            $("svg #Diagram").css({'opacity': "1"} );
+            SnackBar('info', 'Diagram Config is updating', 3000);
+          },
+          error: function(data){
+            SnackBar('error', 'Something went wrong!', 3000);
+  
+          }
+          //  Todo: error for ajax
+        });
+      });
+      $("#diagramFormReset").click(function () {
+        // to handle count of options in diagram
+        var diagramDiff = diagram_graph_optionCount - diagram_graph_optionCountDefault
+
+        if ( diagramDiff > 0 ){
+          for (i = 0; i < diagramDiff; i++) {
+            $( "#removediagramGraphOption" ).trigger( "click" );
+          }
+        } else if ( diagramDiff < 0 ) {
+          for (i = 0; i < Math.abs(diagramDiff); i++) {
+            $( "#adddiagramGraphOption" ).trigger( "click" );
+          }
+          
+        }
+
+
+        // to handle count of options in alias
+        var nodealiasDiff = diagram_nodealias_optionCount - diagram_nodealias_optionCountDefault
+
+        if ( nodealiasDiff > 0 ){
+          for (i = 0; i < nodealiasDiff; i++) {
+            $( "#removediagramNodeAliasOption" ).trigger( "click" );
+          }
+        } else if ( nodealiasDiff < 0 ) {
+          for (i = 0; i < Math.abs(nodealiasDiff); i++) {
+            $( "#adddiagramNodeAliasOption" ).trigger( "click" );
+          }
+          
+        }
+
+        var serializedData = $("#diagramFormid").serialize();
+        $.ajax({
+          url: "{% url 'diagramUpdater' %}",
+          type: 'POST',
+          data: serializedData + "&PressedButton=" + "Reset",
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#DiagramProgressBar");
+            // Reset value of inputs to initial value recevied from data
+            $.map(data, function(value, key) {
+              $('input[name='+key+']').val(value);
+            });
+  
+            CompRealInpConfig('input.DiagramClass'); // select inputs with tag id=Diagram
+            $("#diagramFormid #Diagram").css('color', 'black');
+            $("svg #Diagram").css({'opacity': "1"} );
+            SnackBar('info', 'Diagram Config is updating', 3000);
+          }
+          //  Todo: error for ajax
+        });
+      });
+    });
+
+
+
+
+
+
+
+  </script>
+  <!-- End of diagram options config jQuery -->
+
+
+  <!-- Start of Wireshark options config jQuery -->
+  <script>
+
+    wireshark_protocols_optionCount = Number($("[name=wireshark_protocols_optionCount]").val());
+    wireshark_protocols_optionCountDefault = Number($("[name=wireshark_protocols_optionCountDefault]").val());
+
+    $("#addwiresharkProtocols").click(function() {
+      wireshark_protocols_optionCount ++;
+
+      element = 
+      `
+      <div class="row" id="wireshark_protocolsOptionElement-`+ wireshark_protocols_optionCount +`">
+        <div class="col-md-12 ">
+          <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="" id="id_wireshark_wireshark_protocols_options-`+ wireshark_protocols_optionCount +`">Protocol</span>
+          </div>
+          <input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_wireshark_protocols_options-`+ wireshark_protocols_optionCount +`" name="wireshark_protocols_options-`+ wireshark_protocols_optionCount +`" value="protocols" required="">
+          </div>
+        </div>
+      </div>
+      `
+
+      $("#wiresharkProtocolsId").append(element);
+      $("[name=wireshark_protocols_optionCount]").val(wireshark_protocols_optionCount);  
+    })
+  
+    $("#removewiresharkProtocols").click(function() {
+      
+      
+      if ( wireshark_protocols_optionCount < 1 ){
+        wireshark_protocols_optionCount = 1
+      } else {
+        $( "div #wireshark_protocolsOptionElement-"+wireshark_protocols_optionCount ).remove();
+      }
+      wireshark_protocols_optionCount --;
+      $("[name=wireshark_protocols_optionCount]").val(wireshark_protocols_optionCount);
+    })  
+  
+
+
+    // Wireshark decoders
+    wireshark_decoders_optionCount = Number($("[name=wireshark_decoders_optionCount]").val());
+    wireshark_decoders_optionCountDefault = Number($("[name=wireshark_decoders_optionCountDefault]").val());
+
+    $("#addwiresharkDecoders").click(function() {
+      wireshark_decoders_optionCount ++;
+
+      element = 
+      `
+      <div class="row" id="wireshark_decodersOptionElement-`+ wireshark_decoders_optionCount +`">
+        <div class="col-md-12 ">
+          <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="" id="id_wireshark_wireshark_decoders_options-`+ wireshark_decoders_optionCount +`">Decoder</span>
+          </div>
+          <input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_wireshark_decoders_options-`+ wireshark_decoders_optionCount +`" name="wireshark_decoders_options-`+ wireshark_decoders_optionCount +`" value="decoders" required="">
+          </div>
+        </div>
+      </div>
+      `
+      
+      $("#wiresharkDecodersId").append(element);
+      $("[name=wireshark_decoders_optionCount]").val(wireshark_decoders_optionCount);  
+    })
+  
+    $("#removewiresharkDecoders").click(function() {
+      
+      
+      if ( wireshark_decoders_optionCount < 1 ){
+        wireshark_decoders_optionCount = 1
+      } else {
+        $( "div #wireshark_decodersOptionElement-"+wireshark_decoders_optionCount ).remove();
+      }
+      wireshark_decoders_optionCount --;
+      $("[name=wireshark_decoders_optionCount]").val(wireshark_decoders_optionCount);
+    })  
+  
+
+
+
+    // Wireshark filters
+    wireshark_filters_optionCount = Number($("[name=wireshark_filters_optionCount]").val());
+    wireshark_filters_optionCountDefault = Number($("[name=wireshark_filters_optionCountDefault]").val());
+
+    $("#addwiresharkFilters").click(function() {
+      wireshark_filters_optionCount ++;
+
+      element = 
+      `
+		<div class="row" id="wireshark_filtersOptionElement-`+ wireshark_filters_optionCount +`">
+			<div class="col-md-12 ">
+			  <div class="input-group input-group-sm mb-3">
+				<div class="input-group-prepend">
+				  <span class="input-group-text" data-toggle="tooltip" data-placement="left" title="" id="id_wireshark_wireshark_filters_options-`+ wireshark_filters_optionCount +`">Filter</span>
+				</div>
+				<input type="text" class="form-control WiresharkClass" aria-describedby="id_wireshark_wireshark_filters_options-`+ wireshark_filters_optionCount +`" name="wireshark_filters_options-`+ wireshark_filters_optionCount +`" value="filters" required="">
+			  </div>
+			</div>
+		</div>
+      `
+      
+      $("#wiresharkFiltersId").append(element);
+      $("[name=wireshark_filters_optionCount]").val(wireshark_filters_optionCount);  
+    })
+  
+    $("#removewiresharkFilters").click(function() {
+      
+      
+      if ( wireshark_filters_optionCount < 1 ){
+        wireshark_filters_optionCount = 1
+      } else{
+        $( "div #wireshark_filtersOptionElement-"+wireshark_filters_optionCount ).remove();
+      }
+      wireshark_filters_optionCount --;
+      $("[name=wireshark_filters_optionCount]").val(wireshark_filters_optionCount);
+    })  
+  
+
+    
+
+
+    
+    $(function (){
+      $("#wiresharkFormSubmit").click(function () {
+        var serializedData = $("#wiresharkFormid").serialize();
+        $.ajax({
+          url: "{% url 'wiresharkUpdater' %}",
+          type: 'POST',
+          data: serializedData + "&PressedButton=" + "Submit",
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#WiresharkProgressBar");
+            CompRealInpConfig('input.WiresharkClass'); // select inputs with tag id=Wireshark
+            // alert("Shoooot")
+            $("#wiresharkFormid #Wireshark").css('color', 'black');
+            $("svg #Wireshark").css({'opacity': "1"} );
+            SnackBar('info', 'Wireshark Config is updating', 3000);
+          },
+          error: function(data){
+            SnackBar('error', 'Something went wrong!', 3000);
+  
+          }
+          //  Todo: error for ajax
+        });
+      });
+      $("#wiresharkFormReset").click(function () {
+        // to handle count of options in wireshark_protocol
+        var wireshark_protocolsDiff = wireshark_protocols_optionCount - wireshark_protocols_optionCountDefault
+
+        if ( wireshark_protocolsDiff > 0 ){
+          for (i = 0; i < wireshark_protocolsDiff; i++) {
+            $( "#removewiresharkProtocols" ).trigger( "click" );
+          }
+        } else if ( wireshark_protocolsDiff < 0 ) {
+          for (i = 0; i < Math.abs(wireshark_protocolsDiff); i++) {
+            $( "#addwiresharkProtocols" ).trigger( "click" );
+          }
+          
+        }
+
+
+        // to handle count of options in wireshark_decoders
+        var wireshark_decodersDiff = wireshark_decoders_optionCount - wireshark_decoders_optionCountDefault
+
+        if ( wireshark_decodersDiff > 0 ){
+          for (i = 0; i < wireshark_decodersDiff; i++) {
+            $( "#removewiresharkDecoders" ).trigger( "click" );
+          }
+        } else if ( wireshark_decodersDiff < 0 ) {
+          for (i = 0; i < Math.abs(wireshark_decodersDiff); i++) {
+            $( "#addwiresharkDecoders" ).trigger( "click" );
+          }
+          
+        }
+
+
+        // to handle count of options in wireshark_filters
+        var wireshark_filtersDiff = wireshark_filters_optionCount - wireshark_filters_optionCountDefault
+
+        if ( wireshark_filtersDiff > 0 ){
+          for (i = 0; i < wireshark_filtersDiff; i++) {
+            $( "#removewiresharkFilters" ).trigger( "click" );
+          }
+        } else if ( wireshark_filtersDiff < 0 ) {
+          for (i = 0; i < Math.abs(wireshark_filtersDiff); i++) {
+            $( "#addwiresharkFilters" ).trigger( "click" );
+          }
+          
+        }
+
+
+
+        var serializedData = $("#wiresharkFormid").serialize();
+        $.ajax({
+          url: "{% url 'wiresharkUpdater' %}",
+          type: 'POST',
+          data: serializedData + "&PressedButton=" + "Reset",
+          dataType: 'json',
+          success: function (data) {
+            ProgressBar("#WiresharkProgressBar");
+            // Reset value of inputs to initial value recevied from data
+            $.map(data, function(value, key) {
+              $('input[name='+key+']').val(value);
+            });
+  
+            CompRealInpConfig('input.WiresharkClass'); // select inputs with tag id=Wireshark
+            $("#wiresharkFormid #Wireshark").css('color', 'black');
+            $("svg #Wireshark").css({'opacity': "1"} );
+            SnackBar('info', 'Wireshark Config is updating', 3000);
+          }
+          //  Todo: error for ajax
+        });
+      });
+    });
+
+
+  </script>
+  <!-- End of Wireshark options config jQuery -->
+
+
+
+  <!-- Start of Analyzer Scenario -->
+  <script>
+
+    $(document).on("click",'#Analyzer_ScenarioID' , function(){
+      $.ajax({
+        url: "{% url 'analyzerScenarioLoader' %}",
+        type: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType: 'json',        
+        success: function (data) {
+          $('#savedAnalyzerScenarios').empty()
+          $.each(data.payload, function (element) {
+            var name = data.payload[element].scenarioName
+            var scenarioId = data.payload[element].id
+            var description = data.payload[element].scenarioDescription
+            exitingItem = 
+            `
+            <div id="analyzer_scenario_div_`+ scenarioId +`">
+              <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" readonly style="background-color:transparent;" value="`+ name +`">
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" readonly style="background-color:transparent;" value="`+ description +`">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">action</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item analyzer_action_enable" id="`+ scenarioId +`">enable</a>
+                    <a class="dropdown-item analyzer_action_delete" id="`+ scenarioId +`">delete</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            `
+            $('#savedAnalyzerScenarios').append(exitingItem)
+          })
+        }
+
+      })
+    });
+
+
+ 
+    $(document).on("click",'#AnalyzerScenarioSave' , function(){
+      name = $('#AnalyzerScenarioName').val();
+      description = $('#AnalyzerScenarioDescription').val();
+      $.ajax({
+        url: "{% url 'analyzerScenario' %}",
+        type: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {'name': name, 'description': description, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType: 'json',
+        success: function (data) {
+          if (data.status == true){
+            var name = data.name
+            var scenarioId = data.scenarioId
+            var description = data.description
+            var msg = data.msg
+            newItem = 
+            `
+            <div id="analyzer_scenario_div_`+ scenarioId +`">
+              <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" readonly style="background-color:transparent;" value="`+ name +`">
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" readonly style="background-color:transparent;" value="`+ description +`">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">action</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item analyzer_action_enable" id="`+ scenarioId +`">enable</a>
+                    <a class="dropdown-item analyzer_action_delete" id="`+ scenarioId +`">delete</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            `
+            $('#savedAnalyzerScenarios').append(newItem)
+            SnackBar('info', msg, 3000);
+          } else {
+            var msg = data.msg
+            SnackBar('error', msg, 3000);
+
+          }
+        },
+      })
+    });
+  
+
+
+    $(document).on("click",'.analyzer_action_enable' , function(){
+      scenarioId = $(this).attr('id');
+      name = $(this).val();
+      $.ajax({
+        url: "{% url 'analyzerScenarioAction' %}",
+        type: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {'scenarioId': scenarioId, 'action': 'enable', csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType: 'json',
+        success: function (data) {
+          if ( data.status == true){
+            var msg = data.msg
+            SnackBar('info', msg, 3000);
+
+          } else {
+            var msg = data.msg
+            SnackBar('error', msg, 3000);
+          }
+        }
+      })
+    });
+
+
+
+    $(document).on("click",'.analyzer_action_delete' , function(){
+      scenarioId = $(this).attr('id');
+      name = $(this).val();
+      $.ajax({
+        url: "{% url 'analyzerScenarioAction' %}",
+        type: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {'scenarioId': scenarioId, 'action': 'delete', csrfmiddlewaretoken: '{{ csrf_token }}'},
+        dataType: 'json',
+        success: function (data) {
+          if ( data.status == true){
+            $('#analyzer_scenario_div_'+ scenarioId).remove();
+            var msg = data.msg
+            SnackBar('info', msg, 3000);
+            
+          } else {
+            var msg = data.msg
+            SnackBar('error', msg, 3000);
+          }
+        }
+      })
+    });
+    
+
+  </script>
+  <!-- End of Analyzer Scenario -->
+
+
+  <!-- Start of PaginationTringger initiation -->
+  <script>
+    $(document).on("click",'li.page-item' , function(){
+        $('li.page-item').removeClass('active');
+        $(this).addClass('active');
+        var id = $(this).attr('id')
+        traceUpdaterFunction(id);
+      });
+
+
+
+  </script>
+  <!-- End of PaginationTringger initiation -->
+
+  <!-- Start of TraceUpdater function -->
+  <script>
+
+    function traceUpdaterFunction(pagenumber){
+        $.ajax({
+          url: "{% url 'TraceUpdater' %}",
+          type: 'GET',
+          data: "page_number="+pagenumber,
+          dataType: 'json',
+          success: function (data) {
+            $('span[id="records"]').text(data.records)
+            $("div.ajax_traces_load").empty();
+            $.each(data.payload, function (element) {
+              //console.log(data.data[element])
+              var TestName = data.payload[element].TestName
+              var realFileName = data.payload[element].realFileName
+              var uploaded_at = data.payload[element].uploaded_at.split('.')[0].replace(/[T]/ig, " ")
+
+              $("div.ajax_traces_load").append(
+              `
+              <div class="row px-3 float-right">
+                <i id="del_` + TestName + `" class="DeleteTrace fa fa-trash p-1 fload-right" aria-hidden="true"></i>
+                <a href="/media/` + TestName + `" download><i id="download_` + TestName + `" class="DownloadTrace fa fa-download p-1 fload-right" aria-hidden="true"></i></a>
+              </div>
+              <div>
+                <p class="pb-1 pt-2 pl-2 pr-4 mb-0 small border-bottom border-gray" style="word-wrap: break-word">
+                  `+ uploaded_at +`
+                  <strong class="d-block">
+                    <a id=` + TestName + ` class="traceClicked ClickableTraceTestName">` + realFileName + `</a>
+                  </strong>
+                </p>
+              </div>
+              `
+              )
+            })
+            // Update pagination after refresh
+            var PaginationCount = $('ul.ajax_pagination_ul li').length
+            if (  PaginationCount > data.page_nums ){
+              if ($("li[id="+ PaginationCount + "]").hasClass("active") ){
+                $("li[id="+ data.page_nums + "]").addClass("active")
+              }
+              $("li[id="+ PaginationCount + "]").remove()
+            } else if (PaginationCount < data.page_nums){
+              $("ul.ajax_pagination_ul").append(
+                `<li id="` + data.page_nums + `" class="ajax_pagination_li page-item"><a class="page-link ClickableTraceTestName">` + data.page_nums + `</a></li>`
+                )
+                PaginationTringger();
+            }
+          }
+        });
+      $('li[id=pagenumber]').addClass('active');
+    }
+
+  </script>
+  
+  <script>
+    // 
+    $(function (){
+      $('li.page-item').click(function () {
+        $('li.page-item').removeClass('active');
+        $(this).addClass('active');
+        var id = $(this).attr('id')
+        
+        $.ajax({
+          url: "{% url 'TraceUpdater' %}",
+          type: 'GET',
+          data: "page_number="+id,
+          dataType: 'json',
+          success: function (data) {
+            $('span[id="records"]').text(data.records)
+            $("div.ajax_traces_load").empty();
+            $.each(data.payload, function (element) {
+              //console.log(data.data[element])
+              var TestName = data.payload[element].TestName
+              var realFileName = data.payload[element].realFileName
+              var uploaded_at = data.payload[element].uploaded_at.split('.')[0].replace(/[T]/ig, " ")
+              //console.log(TestName + ": "+realFileName)
+              $("div.ajax_traces_load").append(
+                `
+                <div class="row px-3 float-right">
+                  <i id="del_` + TestName + `" class="DeleteTrace fa fa-trash p-1 fload-right" aria-hidden="true"></i>
+                  <a href="/media/` + TestName + `" download><i id="download_` + TestName + `" class="DownloadTrace fa fa-download p-1 fload-right" aria-hidden="true"></i></a>
+                </div>
+                <div>
+                  <p class="pb-1 pt-2 pl-2 pr-4 mb-0 small border-bottom border-gray" style="word-wrap: break-word">
+                    `+ uploaded_at +`
+                    <strong class="d-block">
+                      <a id=` + TestName + ` class="traceClicked ClickableTraceTestName">` + realFileName + `</a>
+                    </strong>
+                  </p>
+                </div>
+                `
+              )
+            })
+            // Update pagination after refresh
+            var PaginationCount = $('ul.ajax_pagination_ul li').length
+            if (  PaginationCount > data.page_nums ){
+              if ($("li[id="+ PaginationCount + "]").hasClass("active") ){
+                $("li[id="+ data.page_nums + "]").addClass("active")
+              }
+              $("li[id="+ PaginationCount + "]").remove()
+            }
+            
+          }
+        });
+      });
+      $('li[id=1]').addClass('active');
+    });
+  </script>
+  <!-- End of TraceUpdater function -->
+
+  <!-- Start of traceClickedFunction -->
+  <script>
+    //trace name is clicked, load analysis in content
+
+    $(document).on("click",'a.traceClicked' , function(){
+        $("#loadingTraceId").removeClass('invisible')
+        var id = $(this).attr('id')
+        svgObjectId = id.split(".")[0]
+        
+        // to delete all PIA notes
+        $.PostItAll.remove();
+
+        $.ajax({
+          url: "{% url 'loadTraceSVG' %}",
+          type: 'GET',
+          data: "TestName="+id,
+          //dataType: 'json',
+          success: function (response) {
+            $("#loadingTraceId").addClass('invisible')
+            SnackBar('success', "Sequence diagram is loading ...", 3000);
+            $('#traceDiv').html("");
+            $('#traceDiv').html(`
+            <p class="p-2 pb-3 border-bottom border-grey"><strong>Trace Name:</strong> ` + id + `</p>
+            <object class="objectforSVG" id= "`+ svgObjectId +`" type="img/svg+xml"` + response
+            
+            
+            );
+
+          },
+          error: function (response) {
+            $("#loadingTraceId").addClass('invisible')
+            SnackBar('error', "Error in loading Sequence diagram", 3000);
+          }
+        })
+        //console.log(id)
+
+      });
+  </script>
+  <!-- End of traceClickedFunction -->
+
+  <!-- Start of traceDeleteFunction -->
+  <script>
+    //delete traces in Model DB
+
+      // because when in Ajax we append data to  $("div.ajax_traces_load") we need to reload this function
+      // so we created this function traceDeleteFunction
+      // as we need confirmation before removing the trace, due to asynchronous nature of ajax, we need to use callback function
+      // that's why we defined DeleteConfirmation and TraceDeleteToView.
+      // first DeleteConfirmation is executed and id and true/false is given to TraceDeleteToView as input using callback concept
+      $(document).on("click",'i.DeleteTrace' , function(){
+        var id = $(this).attr('id')
+        DeleteConfirmation(id, TraceDeleteToView);
+      });
+
+
+    function TraceDeleteToView(id, userInput){
+      if ( userInput == true ){
+        $.ajax({
+          url: "{% url 'TraceDelete' %}",
+          type: 'GET',
+          data: "TestName="+id,
+          dataType: 'json',
+          success: function (data) {
+            if (data.status == true){
+              SnackBar('success', data.error, 5000);
+
+              $('li.page-item.active').trigger('click');
+            } else {
+              SnackBar('error', data.error, 5000);
+            }
+          }
+        });
+     }
+    }
+
+    // confirmation for deletion
+    function DeleteConfirmation(id, callback){
+      $.confirm({
+        title: 'Confirm!',
+        content: 'Are you sure to delete this file?',
+        buttons: {
+          Yes: function () {
+            // $.alert('Confirmed!');
+            callback(id, true)
+          },
+          No: function () {
+            callback(id, false)
+          },
+        }
+      })
+    }
+  </script>
+  <!-- End of traceDeleteFunction -->
+
+  <!-- Start of traceDownloadFunction -->
+  <script>
+    //download traces
+
+    $(document).on("click",'i.DownloadTrace' , function(){
+        var id = $(this).attr('id')
+        console.log(id)
+        $.ajax({
+          url: "{% url 'downloadTrace' %}",
+          type: 'GET',
+          data: "TestName="+id,
+          // dataType: 'json',
+          success: function (data) {
+            console.log(data)
+          },
+        })
+      });
+
+  </script>
+  <!-- Ens of traceDownloadFunction -->
+  
+  <!-- Start of Analyze ... -->
+  <script>
+
+    // Add the following code if you want the name of the file appear on select
+    $(".custom-file-input").on("change", function() {
+      var fileName = $(this).val().split("\\").pop()
+      nameOfFile = fileName.substr(0,10) + "..." + fileName.substr(fileName.length - 10)
+      $(this).siblings(".custom-file-label").addClass("selected").html(nameOfFile);
+    });
+
+    // anlyze function
+    $(function () {
+        $('#analyzeButton').click(function () {
+            var formData = new FormData();
+            var file = $('#fileupload')[0];
+            var filename = $('#fileupload').val().split('\\').pop();
+            var scenario = $('#runScenarioSelectId option:selected').val();
+            formData.append("file", file.files[0]);
+            formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+            $('#analyzeSpinner').addClass('spinner-border spinner-border-sm')
+            $('#analyzeButton').addClass('disabled')
+            SnackBar('warning', "Analyzing trace file ...", 5000);
+            $.ajax({
+                url: "{% url 'AnalyzeTrace' %}",
+                type: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                  SnackBar('success', "Successfully uploaded trace file", 5000);
+                  $('#analyzeSpinner').removeClass('spinner-border spinner-border-sm')
+                  $('#analyzeButton').removeClass('disabled')
+                  traceUpdaterFunction(1)
+                },
+                error: function (data){
+                  $('#analyzeSpinner').removeClass('spinner-border spinner-border-sm')
+                  $('#analyzeButton').removeClass('disabled')
+
+                  if (data.status == 404){
+                    SnackBar('error', "Reached Maximum number of trace", 5000);
+                  } else {
+                    SnackBar('error', "Select a valid trace file to proceed", 5000);
+                  }
+                },
+            });
+        });
+    });
+  </script>
+  <!-- End of Analyze ... -->
+
+  <!-- Collapse elements in modal -->
+  <script>
+    jQuery('a').click( function(e) {
+      jQuery('.collapse').collapse('hide');
+    });
+  </script>
+
+
+  <!-- Start of Progress Bar jQuery -->
+  <script>
+    function ProgressBar(ProgressBarId) {
+      var current_progress = 0;
+      var interval = setInterval(function() {
+          current_progress += 10;
+          $(ProgressBarId)
+          .css("width", current_progress + "%")
+          .attr("aria-valuenow", current_progress)
+          .text(current_progress + "% Complete");
+          if (current_progress >= 100)
+              clearInterval(interval);
+      }, 200);
+    }
+  </script>
+  <!-- End of Progress Bar jQuery -->
+
+
+  <!-- Start of compare real/current config jQuery -->
+  <script>
+    // Compare Real config with inserted Config and highlight if there is mismatch
+    // This function should trigger once on page load and once on Submit
+    function CompRealInpConfig (Selector) {
+      // Selector is the element to be checked
+      $(Selector).each(function(){
+        var defaultValue = $(this).val();
+        $(this).on("change", function(){
+          var currentValue = $(this).val();
+          if(currentValue != defaultValue) {
+            $(this).css('color', 'red');
+            var id = this.id
+            $("svg " + '#' + id).css({'opacity': "0.4"} );
+          } else {
+            $(this).css('color', 'black');
+            var id = this.id
+            $("svg " + '#' + id).css({'opacity': "1"} );
+          }
+        });
+      });
+    }
+    
+    // initiate the CompRealInpConfig
+    $(function (){
+      CompRealInpConfig('input');
+    });
+    
+  </script>
+    <!-- End of compare real/current config jQuery -->
+
+
+  <!-- Start of json Formatter -->
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $('.jsonFormatter').jsonFormatter();
+          $('.jsonFormatterCustom').jsonFormatter({ quoteKeys: false, collapsible: false, hideOriginal: false });
+      });
+  </script>
+  <!-- End of json Formatter -->
+
+
+{% endblock %}
