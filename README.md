@@ -52,7 +52,7 @@ sudo pip3 install -r requirements.txt
 cd ~/5G-Trace-Analyzer/
 sudo apt-get install -y mongo-tools
 mongorestore -d 'diagram' preconfig/db_dump/diagram/
-``
+```
 
 :seven: Run the django server
 ```
