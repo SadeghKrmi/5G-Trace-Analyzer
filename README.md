@@ -89,7 +89,7 @@ sudo ../.env/bin/python3 manage.py runserver 0.0.0.0:8080
 
 Browse address yourmachineIP:8080 in your browser:
 
-ex: http://192.168.56.4:8080
+Ex: http://192.168.56.4:8080
 
 ### Login Credientials
 ```text
