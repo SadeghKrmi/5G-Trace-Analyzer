@@ -4,6 +4,9 @@
 The 5G Sequence Analyzer is an open-source project to process and analyze 5G network traces.
 The initial trance files(.pcap) are originated from free5GC project.
 
+test_TestRegistration.pcap from free5GC is used as an sample in decoder.
+
+
 ## How to install?
 
 Install VirtualBox and Vagrant:
