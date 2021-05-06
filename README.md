@@ -6,6 +6,9 @@ The initial trance files(.pcap) are originated from free5GC project.
 
 test_TestRegistration.pcap from free5GC is used as an sample in decoder.
 
+## Watch this video for intro and installation
+https://youtu.be/Ss_RmLG3DsM
+
 
 ## How to install?
 
