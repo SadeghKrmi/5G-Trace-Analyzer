@@ -149,20 +149,22 @@ print(seq_diagram)
 
 output_puml_file = pcap_file_path.split('.')[0] + '.puml'
 output_svg_file = pcap_file_path.split('.')[0] + '.svg'
-
+#this should be in a try except block. Not changing in case author wants to keep as is
 with open(output_puml_file, 'w') as puml_file:
     puml_file.write('\n'.join(seq_diagram.get_puml_lines(puml_start_options)))
-    puml_file.close()           #---> In previous verion, file was open and I received error 'no image found' so I had to add close.
+    #puml_file.close()           #---> In previous verion, file was open and I received error 'no image found' so I had to add close.
     # command = 'java -jar plantuml.jar -verbose ' + output_puml_file
-    command = 'java -jar plantuml.jar -tsvg -verbose ' + output_puml_file
-    print('Wrote PUML output to ' + output_puml_file)
-    child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    is_error = False
-    for line in child.stderr:
-        print(line)
-        is_error = True
+# below commands are not needed in the with block. It is better to isolate them
 
-    if(not is_error):
-        output_svg_file = pcap_file_path + '.svg'
-        print('Wrote PNG output to ' + output_svg_file)
-        print('Displaying ' + output_svg_file)
+command = 'java -jar plantuml.jar -tsvg -verbose ' + output_puml_file
+print('Wrote PUML output to ' + output_puml_file)
+child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+is_error = False
+for line in child.stderr:
+print(line)
+is_error = True
+
+if(not is_error):
+output_svg_file = pcap_file_path + '.svg'
+print('Wrote PNG output to ' + output_svg_file)
+print('Displaying ' + output_svg_file)
